@@ -1,0 +1,20 @@
+<?page title="Auto Generated index.zul"?>
+<window title="Hello World!!" border="normal"
+	apply="org.zkoss.bind.BindComposer"
+	viewModel="@id('vMindex') @init('co.edu.web.vm.VMIndex')">
+
+	<listbox width="1000px" height="1000px"
+		model="@bind(vMindex.personas)">
+		<listhead>
+			<listheader label="Num_Doc" />
+			<listheader label="Nombre" />
+		</listhead>
+		<template name="model">
+			<listitem>
+				<listcell label="@bind(each.nroDocumento)" />
+				<listcell label="@bind(each.nombre)" />
+			</listitem>
+		</template>
+	</listbox>
+
+</window>
