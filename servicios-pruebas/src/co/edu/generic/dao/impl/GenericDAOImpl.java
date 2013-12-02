@@ -45,15 +45,34 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		GenericDAO<T, Key> {
 
 	// @Autowired
+	/**
+	 * variable que contrala la session con la base de datos
+	 */
 	private SessionFactory sessionFactory;
 
-	public void setSessionFactory(SessionFactory sessionFactory) {
-		this.sessionFactory = sessionFactory;
-	}
-
+	/**
+	 * Función encargada de retornal la actual session para realizar operaciones
+	 * con la base de datos
+	 * 
+	 * @return CurrentSession
+	 */
 	protected Session getSession() {
 		return this.sessionFactory.getCurrentSession();
 	}
+
+	/**
+	 * Función que retorna el componente transaction. Ayuda para controlar los
+	 * commit y rolback
+	 * 
+	 * @return beginTransaction
+	 * @throws Exception
+	 */
+	/*
+	 * @Transactional(propagation = Propagation.REQUIRED) protected Transaction
+	 * startOperation() throws Exception { transaction =
+	 * this.getSession().getTransaction(); transaction.begin(); return
+	 * transaction; }
+	 */
 
 	/**
 	 * {@inheritDoc}
@@ -68,7 +87,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(T obj) throws Exception {
 		try {
+			//
 			this.getSession().delete(obj);
+
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -147,7 +168,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public T save(T obj) throws Exception {
 		try {
-			getSession().save(obj);
+
+			this.getSession().save(obj);
+
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -160,7 +183,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void update(T obj) throws Exception {
 		try {
-			getSession().update(obj);
+
+			this.getSession().update(obj);
+
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -172,18 +197,14 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Integer saveOrUpdateSql(Class<T> clazz, final String sql)
 			throws Exception {
-		Session session = null;
 		try {
-			session = this.getSession().getSessionFactory().openSession();
-			Query q = session.createSQLQuery(sql);
-			return q.executeUpdate();
+
+			Query q = getSession().createSQLQuery(sql);
+			int i = q.executeUpdate();
+
+			return i;
 		} catch (Exception ex) {
 			handleException(ex);
-		} finally {
-			if (session != null) {
-				session.flush();
-				session.close();
-			}
 		}
 		return null;
 	}
@@ -194,10 +215,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public Integer editHQL(Class<T> clazz, final String hql,
 			Map<String, Object> params) throws Exception {
-		Session session = null;
 		try {
-			session = this.getSession().getSessionFactory().openSession();
-			Query q = session.createQuery(hql);
+
+			Query q = this.getSession().createQuery(hql);
 			Iterator<Entry<String, Object>> itParams = params.entrySet()
 					.iterator();
 			while (itParams.hasNext()) {
@@ -205,13 +225,11 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 						.next();
 				q.setParameter(e.getKey(), e.getValue());
 			}
-			return q.executeUpdate();
+			int i = q.executeUpdate();
+
+			return i;
 		} catch (Exception ex) {
 			handleException(ex);
-		} finally {
-			if (session != null)
-				session.flush();
-			session.close();
 		}
 		return null;
 	}
@@ -252,6 +270,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	@Override
@@ -264,20 +285,15 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 			}
 			qr.isReadOnly();
 			return qr.list();
-			/*
-			 * return this.getSession().execute( new
-			 * HibernateCallback<List<T>>() { public List<T>
-			 * doInHibernate(Session ss) throws HibernateException, SQLException
-			 * { Query q = (Query) ss.createSQLQuery(sql);
-			 * 
-			 * List<T> list = q.list(); return (List<T>) list; } });
-			 */
 		} catch (Exception ex) {
 			handleException(ex);
 		}
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	@Override
@@ -291,14 +307,6 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 			}
 			qr.isReadOnly();
 			return qr.list();
-			/*
-			 * return this.getSession().execute( new
-			 * HibernateCallback<List<T>>() { public List<T>
-			 * doInHibernate(Session ss) throws HibernateException, SQLException
-			 * { Query q = (Query) ss.createSQLQuery(sql);
-			 * 
-			 * List<T> list = q.list(); return (List<T>) list; } });
-			 */
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -324,7 +332,6 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	/**
 	 * {@inheritDoc}
 	 */
-
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<T> findHql(Class<T> clazz, String hql,
@@ -378,7 +385,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveOrUpdate(T obj) throws Exception {
 		try {
-			getSession().saveOrUpdate(obj);
+
+			this.getSession().saveOrUpdate(obj);
+
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -417,6 +426,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<T> findAll(Class<T> clazz, Map<String, Object> params,
@@ -445,6 +457,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	public List<T> findAll(Class<T> clazz, Map<String, Object> params,
@@ -480,9 +495,11 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveOrUpdateAll(List<T> listaElementos) throws Exception {
 		try {
+
 			for (T t : listaElementos) {
 				this.getSession().saveOrUpdate(t);
 			}
+
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -511,18 +528,26 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@Transactional(propagation = Propagation.REQUIRED)
 	@SuppressWarnings("unchecked")
 	public T merge(T obj) throws Exception {
 		T resultado = null;
 		try {
+
 			resultado = ((T) this.getSession().merge(obj));
+
 		} catch (Exception ex) {
 			handleException(ex);
 		}
 		return resultado;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	@Override
@@ -541,6 +566,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		return null;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	@Override
@@ -564,6 +592,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		// return this.getSession().findByCriteria(detachedCriteria);
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	@Override
@@ -588,6 +619,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		return tmpLst;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	@SuppressWarnings("unchecked")
 	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
 	@Override
@@ -623,16 +657,6 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 		return pagingResult;
 	}
 
-	/*
-	 * private HibernateCallback getFindByCriteriaPaginatedCallback(final
-	 * DetachedCriteria criteria, final Integer firstElement, final Integer
-	 * count) { Criteria criteriaExec =
-	 * criteria.getExecutableCriteria(super.getSession()); int size =
-	 * criteriaExec.list().size(); List list =
-	 * criteriaExec.setFirstResult(firstElement).setMaxResults(count).list();
-	 * return new Hi(list, firstElement, count, size); return null; }
-	 */
-
 	/**
 	 * Apply the given name parameter to the given Query object.
 	 * 
@@ -656,4 +680,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 			queryObject.setParameter(paramName, value);
 		}
 	}
+
+	public void setSessionFactory(SessionFactory sessionFactory) {
+		this.sessionFactory = sessionFactory;
+	}
+
 }

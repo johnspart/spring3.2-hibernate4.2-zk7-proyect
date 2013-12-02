@@ -165,7 +165,8 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 *            resultado.
 	 * @param desc
 	 *            si es true el orden es descendente en caso de que el parametro
-	 *            orderProperty no sea vacío. Si es false el orden es ascendente
+	 *            orderProperty no sea vacío. Si es false el orden es
+	 *            ascendente
 	 * @return lista de elementos
 	 * 
 	 * @throws Exception

@@ -13,4 +13,8 @@ import co.edu.awaa.maping.anotations.Personas;
  */
 public interface ServiceManager {
 	public List<Personas> getAllPersonas() throws Exception;
+
+	void guardarOActualizarPersona(Personas personas) throws Exception;
+
+	void eliminarPersonas(Personas personas) throws Exception;
 }

@@ -1,0 +1,38 @@
+<?page title="new page title" contentType="text/html;charset=UTF-8"?>
+<zk>
+	<window id="winNuevaPersona" title="Nueva Persona" border="none"
+		width="500px" mode="highlighted">
+		<hlayout>
+			<vbox>
+				<button label="guardar"
+					onClick="@command('guardarPersona', numD = txbDNI.value, tipoD = txbTpDoc.value, nombre = txbNombre.value, apell = txbApellido1.value)" />
+				<button label="cerrar"
+					onClick="winNuevaPersona.onClose()" />
+			</vbox>
+			<grid>
+				<columns>
+					<column hflex="min" />
+					<column />
+				</columns>
+				<rows>
+					<row>
+						<label value="DNI:" />
+						<textbox id="txbDNI" />
+					</row>
+					<row>
+						<label value="Tipo Documento:" />
+						<textbox id="txbTpDoc" />
+					</row>
+					<row>
+						<label value="Nombre:" />
+						<textbox id="txbNombre" />
+					</row>
+					<row>
+						<label value="Apellido 1:" />
+						<textbox id="txbApellido1" />
+					</row>
+				</rows>
+			</grid>
+		</hlayout>
+	</window>
+</zk>

@@ -2,9 +2,9 @@ package services.impl;
 
 import java.util.List;
 
+import services.ServiceManager;
 import co.edu.awaa.maping.anotations.Personas;
 import co.edu.generic.dao.GenericDAO;
-import services.ServiceManager;
 
 /**
  * 
@@ -22,6 +22,16 @@ public class ServiceManagerImpl implements ServiceManager {
 		return personasDAO.findAll(Personas.class);
 	}
 
+	@Override
+	public void guardarOActualizarPersona(Personas personas) throws Exception {
+		this.personasDAO.saveOrUpdate(personas);
+	}
+
+	@Override
+	public void eliminarPersonas(Personas personas) throws Exception {
+		this.personasDAO.delete(personas);
+	}
+
 	/**
 	 * @param personasDAO
 	 *            the personasDAO to set
@@ -29,5 +39,4 @@ public class ServiceManagerImpl implements ServiceManager {
 	public void setPersonasDAO(GenericDAO<Personas, String> personasDAO) {
 		this.personasDAO = personasDAO;
 	}
-
 }

@@ -1,20 +1,32 @@
 <?page title="Auto Generated index.zul"?>
-<window title="Hello World!!" border="normal"
-	apply="org.zkoss.bind.BindComposer"
+<window border="none" apply="org.zkoss.bind.BindComposer" id="winIndex"
 	viewModel="@id('vMindex') @init('co.edu.web.vm.VMIndex')">
 
-	<listbox width="1000px" height="1000px"
-		model="@bind(vMindex.personas)">
-		<listhead>
-			<listheader label="Num_Doc" />
-			<listheader label="Nombre" />
-		</listhead>
-		<template name="model">
-			<listitem>
-				<listcell label="@bind(each.nroDocumento)" />
-				<listcell label="@bind(each.nombre)" />
-			</listitem>
-		</template>
-	</listbox>
+	<borderlayout height="600px" width="1200px">
+		<east autoscroll="true" splittable="true" collapsible="true">
+			<menubar>
+				<menuitem label="nueva persona"
+					class="btn-default dropdown-toggle"
+					onClick="@command('nuevaPersonaWin', win = winIndex)" />
+				<menuitem label="eliminar persona"
+					onClick="@command('eliminarPersonas')" />
+			</menubar>
+		</east>
+		<center vflex="min" autoscroll="false">
+			<listbox width="1000px" autopaging="true" mold="paging"
+				rows="15" model="@bind(vMindex.personas)">
+				<listhead>
+					<listheader label="Num_Doc" />
+					<listheader label="Nombre" />
+				</listhead>
+				<template name="model">
+					<listitem>
+						<listcell label="@bind(each.nroDocumento)" />
+						<listcell label="@bind(each.nombre)" />
+					</listitem>
+				</template>
+			</listbox>
+		</center>
+	</borderlayout>
 
 </window>
