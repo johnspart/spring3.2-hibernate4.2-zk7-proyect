@@ -12,20 +12,37 @@
 					onClick="@command('eliminarPersonas')" />
 			</menubar>
 		</east>
-		<center vflex="min" autoscroll="false">
-			<listbox width="1000px" autopaging="true" mold="paging"
-				rows="15" model="@bind(vMindex.personas)">
-				<listhead>
-					<listheader label="Num_Doc" />
-					<listheader label="Nombre" />
-				</listhead>
-				<template name="model">
-					<listitem>
-						<listcell label="@bind(each.nroDocumento)" />
-						<listcell label="@bind(each.nombre)" />
-					</listitem>
-				</template>
-			</listbox>
+		<center autoscroll="false">
+
+
+			<div height="1200px">
+
+				<listbox id="lstbox" width="1000px" mold="paging"
+					model="@bind(vMindex.pgcPersonas.listMdl)">
+					<listhead>
+						<listheader label="Num_Doc" />
+						<listheader label="Nombre" />
+					</listhead>
+					<template name="model">
+						<listitem>
+							<listcell label="@bind(each.nroDocumento)" />
+							<listcell label="@bind(each.nombre)" />
+						</listitem>
+					</template>
+
+					<listfoot>
+						<listfooter id="lstFoot">
+							<paging id="pagenavi"
+								pageSize="@load(vMindex.pgcPersonas.pageSize)"
+								activePage="@bind(vMindex.pgcPersonas.activePage)"
+								totalSize="@load(vMindex.pgcPersonas.totalSize)"
+								onPaging="@command('cambiodepagina', page = self.activePage)"
+								pageIncrement="1" detailed="false" />
+						</listfooter>
+					</listfoot>
+				</listbox>
+			</div>
+
 		</center>
 	</borderlayout>
 

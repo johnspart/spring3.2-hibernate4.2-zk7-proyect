@@ -10,6 +10,7 @@ package co.edu.generic.dao.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -22,6 +23,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Example;
 import org.hibernate.criterion.Order;
@@ -32,6 +34,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import antlr.collections.impl.Vector;
 import co.edu.generic.dao.GenericDAO;
 
 /**
@@ -49,6 +52,9 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	 * variable que contrala la session con la base de datos
 	 */
 	private SessionFactory sessionFactory;
+	// Valores para operaciones especiales
+	private Session session;
+	private Transaction transaction;
 
 	/**
 	 * Función encargada de retornal la actual session para realizar operaciones
@@ -67,12 +73,22 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	 * @return beginTransaction
 	 * @throws Exception
 	 */
-	/*
-	 * @Transactional(propagation = Propagation.REQUIRED) protected Transaction
-	 * startOperation() throws Exception { transaction =
-	 * this.getSession().getTransaction(); transaction.begin(); return
-	 * transaction; }
-	 */
+	@Transactional(propagation = Propagation.REQUIRED)
+	protected Transaction startOperation() throws Exception {
+		this.session = this.sessionFactory.openSession();
+		this.transaction = session.beginTransaction();
+		return transaction;
+	}
+
+	private void endOperation() throws Exception {
+		if (this.session != null && transaction != null) {
+			this.transaction.commit();
+			this.session.flush();
+			this.session.close();
+			this.session = null;
+			this.transaction = null;
+		}
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -84,12 +100,23 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	/**
 	 * {@inheritDoc}
 	 */
+	protected void handleExceptionRollBack(Exception e) throws Exception {
+		this.transaction.rollback();
+		if (this.session != null) {
+			this.session.flush();
+			this.session.close();
+			this.session = null;
+		}
+		throw new Exception(e);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void delete(T obj) throws Exception {
 		try {
-			//
 			this.getSession().delete(obj);
-
 		} catch (Exception ex) {
 			handleException(ex);
 		}
@@ -495,13 +522,13 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	@Transactional(propagation = Propagation.REQUIRED)
 	public void saveOrUpdateAll(List<T> listaElementos) throws Exception {
 		try {
-
+			this.startOperation();
 			for (T t : listaElementos) {
-				this.getSession().saveOrUpdate(t);
+				this.session.saveOrUpdate(t);
 			}
-
+			this.endOperation();
 		} catch (Exception ex) {
-			handleException(ex);
+			handleExceptionRollBack(ex);
 		}
 	}
 
@@ -658,6 +685,48 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	@Deprecated
+	@SuppressWarnings("unchecked")
+	@Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+	@Override
+	public List<T> findDetachedCriteriaFirst(DetachedCriteria detachedCriteria,
+			int pageSize, int page) throws Exception {
+		List<T> tmpLst = new ArrayList<T>();
+		try {
+			Criteria executableCriteria = detachedCriteria
+					.getExecutableCriteria(this.getSession());
+			if (page > 0) {
+				executableCriteria.setFirstResult((page - 1) * pageSize);
+			}
+			if (pageSize > 0) {
+				executableCriteria.setMaxResults(pageSize);
+			}
+			tmpLst = executableCriteria.list();
+
+			detachedCriteria.setProjection(Projections.rowCount());
+
+			executableCriteria = detachedCriteria.getExecutableCriteria(this
+					.getSession());
+			Long rwLst = (Long) executableCriteria.uniqueResult();
+
+			List<T> lst = new ArrayList<T>(rwLst.intValue());
+			int il = (page - 1) * pageSize;
+			int iMin = rwLst.intValue() - pageSize;
+			for (int i = 0; i < iMin; i++) {
+				lst.add(null);
+			}
+			lst.addAll(il, tmpLst);
+			return lst;
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			handleException(ex);
+		}
+		return new ArrayList<T>(0);
+	}
+
+	/**
 	 * Apply the given name parameter to the given Query object.
 	 * 
 	 * @param queryObject
@@ -684,5 +753,4 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-
 }

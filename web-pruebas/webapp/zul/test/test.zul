@@ -1,0 +1,18 @@
+<zk>
+    <window apply="org.zkoss.bind.BindComposer"
+        viewModel="@id('vm') @init('test.TestVM')">
+        <div width="350px">
+            <listbox model="@load(vm.model)" height="350px" width="350px"
+                style="border-bottom: 0;">
+                <template name="model" var="item">
+                    <listitem>
+                        <listcell label="@load(item)" />
+                    </listitem>
+                </template>
+            </listbox>
+            <paging width="350px" totalSize="@load(vm.totalSize)" pageSize="@load(vm.pageSize)"
+                activePage="@bind(vm.activePage)" onPaging="@command('refreshModel')"
+                style="padding-left: 0; padding-right: 0; border-left: 1px solid #cfcfcf; border-right: 1px solid #cfcfcf;" />
+        </div>
+    </window>
+</zk>

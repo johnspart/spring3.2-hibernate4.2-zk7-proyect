@@ -60,7 +60,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param clazz
 	 *            representa la clase del elemento a buscar
 	 * @param filter
-	 *            condición a aplicar a la búsqueda
+	 *            condici�n a aplicar a la búsqueda
 	 * @return lista de elementos
 	 * @throws Exception
 	 */
@@ -72,7 +72,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param clazz
 	 *            representa la clase del elemento a buscar
 	 * @param sql
-	 *            condición a aplicar a la búsqueda
+	 *            condici�n a aplicar a la búsqueda
 	 * @return lista de elementos
 	 * @throws Exception
 	 */
@@ -85,7 +85,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param clazz
 	 *            representa la clase del elemento a buscar
 	 * @param hql
-	 *            condición a aplicar a la búsqueda
+	 *            condici�n a aplicar a la búsqueda
 	 * @return lista de elementos
 	 * @throws Exception
 	 */
@@ -143,7 +143,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 *            representa la clase del elemento a buscar
 	 * @param params
 	 *            mapa de <nombre parámetro, valor> los cuales se aplican a la
-	 *            búsqueda
+	 *            b�squeda
 	 * @param orderProperty
 	 *            nombre del o los atributo por el cual se debe ordenar el
 	 *            resultado. El orden es ascendente
@@ -158,8 +158,8 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param clazz
 	 *            representa la clase del elemento a buscar
 	 * @param params
-	 *            mapa de <nombre parámetro, valor> los cuales se aplican a la
-	 *            búsqueda
+	 *            mapa de <nombre parametro, valor> los cuales se aplican a la
+	 *            busqueda
 	 * @param orderProperty
 	 *            nombre del o los atributo por el cual se debe ordenar el
 	 *            resultado.
@@ -183,7 +183,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param hql
 	 *            estructura hql de la busqueda
 	 * @param params
-	 *            mapa de <nombre parámetro, valor> los cuales se aplican a la
+	 *            mapa de <nombre parametro, valor> los cuales se aplican a la
 	 *            búsqueda
 	 * @return lista de elementos
 	 * @throws Exception
@@ -243,7 +243,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	void saveOrUpdateAll(List<T> listaElementos) throws Exception;
 
 	/**
-	 * Realiza la ejecución de la NamedQuery especificada con el
+	 * Realiza la ejecuci�n de la NamedQuery especificada con el
 	 * <code>queryName</code>
 	 * 
 	 * @param queryName
@@ -292,7 +292,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 *            estructura sql de la busqueda
 	 * @param params
 	 *            mapa de <nombre parámetro, valor> los cuales se aplican a la
-	 *            búsqueda
+	 *            b�squeda
 	 * @return lista de elementos
 	 * @throws Exception
 	 */
@@ -305,7 +305,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param detachedCriteria
 	 *            manejador de la consulta
 	 * @param pageSize
-	 *            tamaño de la lista a devolver y a buscar
+	 *            tama�o de la lista a devolver y a buscar
 	 * @param page
 	 *            pagina actual
 	 * @return Bean que contiene el numero de elemenstos totales y la lista de
@@ -322,7 +322,7 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param detachedCriteria
 	 *            manejador de la consulta
 	 * @param limit
-	 *            tamaño de la lista a devolver y a buscar
+	 *            tama�o de la lista a devolver y a buscar
 	 * @return Lista de elementos devueltos en la consulta
 	 * @throws Exception
 	 */
@@ -335,13 +335,30 @@ public interface GenericDAO<T, Key extends Serializable> {
 	 * @param detachedCriteria
 	 *            manejador de la consulta
 	 * @param pageSize
-	 *            tamaño de la lista a devolver y a buscar
+	 *            tama�o de la lista a devolver y a buscar
 	 * @param page
 	 *            pagina actual
 	 * @return Lista de elementos devueltos en la consulta
 	 * @throws Exception
 	 */
 	List<T> findCriteriaDinamico(DetachedCriteria detachedCriteria,
+			int pageSize, int page) throws Exception;
+
+	/**
+	 * 
+	 * Realiza consulta limitada por los parametros recibidos y devuelve
+	 * lacantidad de filas encontrada pero solo contienen valores la pagina
+	 * solicitada, los valores extra se devuelven nulos "No se recomienda el uso
+	 * para acceder a datos muy grandes para la clase GenericDAOImpl"
+	 * 
+	 * @param detachedCriteria
+	 * @param pageSize
+	 * @param page
+	 * @return lista de elementos
+	 * @throws Exception
+	 */
+	@Deprecated
+	List<T> findDetachedCriteriaFirst(DetachedCriteria detachedCriteria,
 			int pageSize, int page) throws Exception;
 
 }

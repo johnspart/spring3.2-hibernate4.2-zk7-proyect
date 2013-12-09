@@ -3,20 +3,21 @@
  */
 package co.edu.web.vm;
 
-import java.util.List;
-
 import org.zkoss.bind.annotation.BindingParam;
 import org.zkoss.bind.annotation.Command;
 import org.zkoss.bind.annotation.Init;
 import org.zkoss.bind.annotation.NotifyChange;
 import org.zkoss.zk.ui.Component;
 import org.zkoss.zk.ui.Executions;
+import org.zkoss.zul.ListModelList;
+import org.zkoss.zul.Messagebox;
 import org.zkoss.zul.Window;
-import org.zkoss.zul.theme.Themes;
 
 import services.ServiceManager;
 import co.edu.awaa.maping.anotations.Personas;
+import co.edu.generic.dao.impl.PagingResult;
 import co.edu.utils.ServiceLocator;
+import co.edu.web.utils.PagingCacheVO;
 import co.edu.web.vm.utils.BuilderZK;
 
 /**
@@ -25,11 +26,18 @@ import co.edu.web.vm.utils.BuilderZK;
  */
 public class VMIndex extends BuilderZK {
 	private final String rutaNuevaPersonaWin = "/zul/maestros/personas/nuevaPersona.zul";
-	private List<Personas> personas;
+	/*
+	 * private List<String> paginasRecorridas; private ListModelList<Personas>
+	 * personas; private ListModelList<Personas> personasMdl; private int
+	 * activePage = 0; private int totalSize = 0; private int pageSize = 5;
+	 */
+
+	private PagingCacheVO<Personas> pgcPersonas;
 
 	@Init
 	public void init() {
 		try {
+
 			/*
 			 * Executor executor = Executors.newCachedThreadPool();
 			 * 
@@ -38,15 +46,37 @@ public class VMIndex extends BuilderZK {
 			 * .getServicio(ServiceManager.class.getSimpleName(),
 			 * ServiceManager.class))); }
 			 */
-			this.personas = ServiceLocator
+			/*
+			 * Se asigna el tamaño de la lista con slo datos en la pagina actual
+			 * this.personas = new ListModelList<Personas>(ServiceLocator
+			 * .getInstance() .getServicio(ServiceManager.class.getSimpleName(),
+			 * ServiceManager.class) .getAllPersonasPaging(10, 1, null));
+			 * this.paginasRecorridas = new ArrayList<String>();
+			 * this.paginasRecorridas.add(1 + "");
+			 */
+
+			this.pgcPersonas = new PagingCacheVO<>(
+					new ListModelList<Personas>(), 0, 6, 0);
+
+			PagingResult<Personas> pagingResult = ServiceLocator
 					.getInstance()
 					.getServicio(ServiceManager.class.getSimpleName(),
-							ServiceManager.class).getAllPersonas();
+							ServiceManager.class)
+					.getPersonasPagingWithSize(this.pgcPersonas.getPageSize(),
+							1, null);
+
+			this.pgcPersonas.addPagingResult(pagingResult, 1);
 
 		} catch (Exception e) {
 			showErrorMessage(e);
 			e.printStackTrace();
 		}
+	}
+
+	@NotifyChange("*")
+	@Override
+	public void afterCompose(Component view) {
+		super.afterCompose(view);
 	}
 
 	@Command
@@ -86,33 +116,56 @@ public class VMIndex extends BuilderZK {
 	@NotifyChange("*")
 	public void eliminarPersonas() {
 		try {
-			for (Personas persona : this.personas) {
-				if ("Web".equals(persona.getNombre())) {
-					ServiceLocator
-							.getInstance()
-							.getServicio(ServiceManager.class.getSimpleName(),
-									ServiceManager.class)
-							.eliminarPersonas(persona);
-				}
-			}
+			addMessage("Implementar");
+			showMessage(Messagebox.EXCLAMATION, null);
 		} catch (Exception e) {
 			showErrorMessage(e);
 			e.printStackTrace();
 		}
 	}
 
-	/**
-	 * @return the personas
-	 */
-	public List<Personas> getPersonas() {
-		return personas;
+	@Command("cambiodepagina")
+	@NotifyChange("*")
+	public void cambiodepagina(@BindingParam("page") int page) {
+		try {
+			page++;
+
+			this.pgcPersonas.getListMdl().clear();
+
+			if (this.pgcPersonas.containsPage(page)) {
+				this.pgcPersonas.getListMdl().addAll(
+						this.pgcPersonas.getPageList(page));
+			} else {
+
+				this.pgcPersonas.setMdlAndAddFull(
+						ServiceLocator
+								.getInstance()
+								.getServicio(
+										ServiceManager.class.getSimpleName(),
+										ServiceManager.class)
+								.getAllPersonasPaging(
+										this.pgcPersonas.getPageSize(), page),
+						page);
+			}
+		} catch (Exception e) {
+			super.showErrorMessage(e);
+			e.printStackTrace();
+		}
 	}
 
 	/**
-	 * @param personas
-	 *            the personas to set
+	 * @return the pgcPersonas
 	 */
-	public void setPersonas(List<Personas> personas) {
-		this.personas = personas;
+	public PagingCacheVO<Personas> getPgcPersonas() {
+		return pgcPersonas;
 	}
+
+	/**
+	 * @param pgcPersonas
+	 *            the pgcPersonas to set
+	 */
+	public void setPgcPersonas(PagingCacheVO<Personas> pgcPersonas) {
+		this.pgcPersonas = pgcPersonas;
+	}
+
 }

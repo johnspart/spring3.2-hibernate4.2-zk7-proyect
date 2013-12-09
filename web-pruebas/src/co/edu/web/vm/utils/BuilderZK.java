@@ -4,6 +4,11 @@
 package co.edu.web.vm.utils;
 
 import org.springframework.util.StringUtils;
+import org.zkoss.bind.annotation.AfterCompose;
+import org.zkoss.bind.annotation.ContextParam;
+import org.zkoss.bind.annotation.ContextType;
+import org.zkoss.zk.ui.Component;
+import org.zkoss.zk.ui.select.Selectors;
 import org.zkoss.zul.Messagebox;
 
 /**
@@ -12,6 +17,11 @@ import org.zkoss.zul.Messagebox;
  */
 public abstract class BuilderZK {
 	private StringBuilder messages;
+
+	@AfterCompose
+	public void afterCompose(@ContextParam(ContextType.VIEW) Component view) {
+		Selectors.wireComponents(view, this, false);
+	}
 
 	public BuilderZK() {
 		this.messages = new StringBuilder();
