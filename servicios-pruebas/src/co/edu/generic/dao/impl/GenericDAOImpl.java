@@ -10,7 +10,6 @@ package co.edu.generic.dao.impl;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
@@ -34,7 +33,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
-import antlr.collections.impl.Vector;
 import co.edu.generic.dao.GenericDAO;
 
 /**
@@ -672,6 +670,12 @@ public class GenericDAOImpl<T, Key extends Serializable> implements
 
 			executableCriteria = detachedCriteria.getExecutableCriteria(this
 					.getSession());
+			if (page > 0) {
+				executableCriteria.setFirstResult(-1);
+			}
+			if (pageSize > 0) {
+				executableCriteria.setMaxResults(-1);
+			}
 			Long rwLst = (Long) executableCriteria.uniqueResult();
 
 			pagingResult.setList(tmpLst);
