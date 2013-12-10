@@ -19,6 +19,8 @@ import co.edu.generic.dao.impl.PagingResult;
  * Se implementan "org.zkoss.zul.ListModelList" para otros sistemas sin zk se
  * pueden implementar clases que heredan de "java.util.List"
  * 
+ * V=1.0.0
+ * 
  * @author johnspart
  * 
  */
@@ -86,7 +88,7 @@ public class PagingCacheVO<T> implements Serializable {
 	}
 
 	/**
-	 * Se crea un nuevo objeto que parte dede la pagina 1
+	 * Se crea un nuevo objeto que parte desde la pagina 1
 	 * 
 	 * @param pagingResult
 	 */
