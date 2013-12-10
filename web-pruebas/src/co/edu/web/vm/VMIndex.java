@@ -137,15 +137,15 @@ public class VMIndex extends BuilderZK {
 						this.pgcPersonas.getPageList(page));
 			} else {
 
-				this.pgcPersonas.setMdlAndAddFull(
+				this.pgcPersonas.addPagingResult(
 						ServiceLocator
 								.getInstance()
 								.getServicio(
 										ServiceManager.class.getSimpleName(),
 										ServiceManager.class)
-								.getAllPersonasPaging(
-										this.pgcPersonas.getPageSize(), page),
-						page);
+								.getPersonasPagingWithSize(
+										this.pgcPersonas.getPageSize(), page,
+										null), page);
 			}
 		} catch (Exception e) {
 			super.showErrorMessage(e);
