@@ -7,6 +7,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import org.zkoss.zul.ListModelList;
 
@@ -19,7 +20,7 @@ import co.edu.generic.dao.impl.PagingResult;
  * Se implementan "org.zkoss.zul.ListModelList" para otros sistemas sin zk se
  * pueden implementar clases que heredan de "java.util.List"
  * 
- * V=1.0.0
+ * V=1.3.0
  * 
  * @author johnspart
  * 
@@ -35,6 +36,12 @@ public class PagingCacheVO<T> implements Serializable {
 	private int activePage = 0;
 	private int totalSize = 0;
 	private int pageSize = 10;
+	/**
+	 * variable o atributo, que mide o establece el tamaño de paginas gruadado
+	 * en el cache, ayuda a controlar el tamaño segun criterios, cuando su valor
+	 * es menor a 0 no aplica
+	 */
+	private int cacheSize = 0;
 
 	/**
 	 * para crear la lista inicial
@@ -107,7 +114,8 @@ public class PagingCacheVO<T> implements Serializable {
 	}
 
 	/**
-	 * Se le asigna al objeto los valores del paging result
+	 * Se le asigna al objeto los valores del paging result se tiene encuanta el
+	 * tamaño del cache
 	 * 
 	 * @param pagingResult
 	 * @param page
@@ -115,6 +123,7 @@ public class PagingCacheVO<T> implements Serializable {
 	public void addPagingResult(PagingResult<T> pagingResult, int page) {
 		if (listFull == null)
 			this.listFull = new HashMap<String, List<T>>();
+		this.applyCacheSize();
 		this.listFull.put(new StringBuilder().append(page).toString(),
 				pagingResult.getList());
 		this.listMdl = new ListModelList<T>(listFull.get(new StringBuilder()
@@ -133,11 +142,13 @@ public class PagingCacheVO<T> implements Serializable {
 	}
 
 	/**
-	 * Agrega una pagina a la lista para aclarar que esta ya esta cargada
+	 * Agrega una pagina a la lista para aclarar que esta ya esta cargada se
+	 * tiene encuanta el tamaño del cache
 	 * 
 	 * @param pageNumber
 	 */
 	public void addPage(int pageNumber, List<T> elemnts) {
+		this.applyCacheSize();
 		this.listFull.put(new StringBuilder().append(pageNumber).toString(),
 				elemnts);
 	}
@@ -158,6 +169,23 @@ public class PagingCacheVO<T> implements Serializable {
 	public boolean containsPage(int pageNumber) {
 		return this.listFull.containsKey(new StringBuilder().append(pageNumber)
 				.toString());
+	}
+
+	/**
+	 * Se remueve una o mas paginas del map, antes de añadir una pagina nueva,
+	 * respetando el tamaño de la variable "cacheSize"
+	 */
+	public void applyCacheSize() {
+		if (this.cacheSize > 0 && this.listFull != null) {
+			while (this.listFull.size() >= this.cacheSize) {
+				Object[] keys = this.listFull.keySet().toArray();
+				if (keys.length < 1)
+					return;
+
+				this.listFull
+						.remove(keys[new Random().nextInt(listFull.size())]);
+			}
+		}
 	}
 
 	/**
@@ -236,5 +264,28 @@ public class PagingCacheVO<T> implements Serializable {
 	 */
 	public void setListFull(Map<String, List<T>> listFull) {
 		this.listFull = listFull;
+	}
+
+	/**
+	 * variable o atributo, que mide o establece el tamaño de paginas gruadado
+	 * en el cache, ayuda a controlar el tamaño segun criterios, cuando su valor
+	 * es menor a 0 no aplica
+	 * 
+	 * @return the cacheSize
+	 */
+	public int getCacheSize() {
+		return cacheSize;
+	}
+
+	/**
+	 * variable o atributo, que mide o establece el tamaño de paginas gruadado
+	 * en el cache, ayuda a controlar el tamaño segun criterios, cuando su valor
+	 * es menor a 0 no aplica
+	 * 
+	 * @param cacheSize
+	 *            the cacheSize to set
+	 */
+	public void setCacheSize(int cacheSize) {
+		this.cacheSize = cacheSize;
 	}
 }
